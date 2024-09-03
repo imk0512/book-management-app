@@ -1,14 +1,20 @@
 package com.test.bookmanagementapp.service
 
+import com.test.bookmanagementapp.exception.ResourceNotFoundException
 import com.test.bookmanagementapp.model.Author
 import com.test.bookmanagementapp.repository.AuthorRepository
+import com.test.bookmanagementapp.repository.BookRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 @Transactional
-class AuthorService(private val authorRepository: AuthorRepository) {
+class AuthorService(
+    private val authorRepository: AuthorRepository,
+    private val bookRepository: BookRepository
+) {
 
     fun getAllAuthors(): List<Author> {
         return authorRepository.findAll()
@@ -41,9 +47,15 @@ class AuthorService(private val authorRepository: AuthorRepository) {
     }
 
     fun deleteAuthorById(id: Long) {
-        authorRepository.deleteById(id)
-    }
+        val author = authorRepository.findById(id)
+            ?: throw ResourceNotFoundException("Author with id $id not found")
 
+        // 著者に関連する本を全て論理削除
+        bookRepository.markBooksAsDeletedByAuthorId(id)
+
+        val updatedAuthor = author.copy(deletedAt = LocalDateTime.now())
+        authorRepository.save(updatedAuthor)
+    }
     fun searchAuthors(name: String?, birthdate: String?): List<Author> {
         val authors = authorRepository.findAll()
         return authors.filter { author ->

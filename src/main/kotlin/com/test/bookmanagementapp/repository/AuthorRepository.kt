@@ -20,6 +20,20 @@ class AuthorRepository(private val dsl: DSLContext) {
             .fetchOneInto(Author::class.java)
     }
 
+
+    fun existsById(id: Long): Boolean {
+        return dsl.fetchCount(
+            dsl.selectFrom(AUTHORS)
+                .where(AUTHORS.ID.eq(id))
+        ) > 0
+    }
+
+    fun findByNameContainingIgnoreCase(name: String): List<Author> {
+        return dsl.selectFrom(AUTHORS)
+            .where(AUTHORS.NAME.containsIgnoreCase(name))
+            .fetchInto(Author::class.java)
+    }
+
     fun save(author: Author): Author {
         val currentTime = LocalDateTime.now()
 
