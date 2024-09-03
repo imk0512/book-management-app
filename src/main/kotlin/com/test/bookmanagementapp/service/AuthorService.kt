@@ -18,23 +18,21 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         return authorRepository.findById(id)
     }
 
-    fun createAuthor(name: String, birthdate: LocalDate, nationality: String): Author {
+    fun createAuthor(name: String, birthdate: LocalDate): Author {
         val author = Author(
             id = null,
             name = name,
-            birthdate = birthdate,
-            nationality = nationality
+            birthdate = birthdate
         )
         return authorRepository.save(author)
     }
 
-    fun updateAuthor(id: Long, name: String?, birthdate: LocalDate?, nationality: String?): Author? {
+    fun updateAuthor(id: Long, name: String?, birthdate: LocalDate?): Author? {
         val existingAuthor = authorRepository.findById(id)
         return if (existingAuthor != null) {
             val updatedAuthor = existingAuthor.copy(
                 name = name ?: existingAuthor.name,
-                birthdate = birthdate ?: existingAuthor.birthdate,
-                nationality = nationality ?: existingAuthor.nationality
+                birthdate = birthdate ?: existingAuthor.birthdate
             )
             authorRepository.save(updatedAuthor)
         } else {
@@ -46,11 +44,10 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         authorRepository.deleteById(id)
     }
 
-    fun searchAuthors(name: String?, nationality: String?, birthdate: String?): List<Author> {
+    fun searchAuthors(name: String?, birthdate: String?): List<Author> {
         val authors = authorRepository.findAll()
         return authors.filter { author ->
             (name == null || author.name.contains(name, ignoreCase = true)) &&
-                    (nationality == null || author.nationality == nationality) &&
                     (birthdate == null || author.birthdate.toString() == birthdate)
         }
     }

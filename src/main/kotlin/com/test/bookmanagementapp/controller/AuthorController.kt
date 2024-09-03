@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-
 @RestController
 @RequestMapping("/api/authors")
 class AuthorController(private val authorService: AuthorService) {
@@ -19,8 +18,7 @@ class AuthorController(private val authorService: AuthorService) {
             AuthorResponse(
                 id = author.id!!,
                 name = author.name,
-                birthdate = author.birthdate,
-                nationality = author.nationality
+                birthdate = author.birthdate
             )
         }
         val response = ApiResponse(
@@ -37,8 +35,7 @@ class AuthorController(private val authorService: AuthorService) {
             val response = AuthorResponse(
                 id = author.id!!,
                 name = author.name,
-                birthdate = author.birthdate,
-                nationality = author.nationality
+                birthdate = author.birthdate
             )
             ResponseEntity.ok(ApiResponse(status = "success", data = response))
         } else {
@@ -51,14 +48,12 @@ class AuthorController(private val authorService: AuthorService) {
     fun createAuthor(@RequestBody createAuthorRequest: CreateAuthorRequest): ResponseEntity<ApiResponse<AuthorResponse>> {
         val author = authorService.createAuthor(
             name = createAuthorRequest.name,
-            birthdate = createAuthorRequest.birthdate,
-            nationality = createAuthorRequest.nationality
+            birthdate = createAuthorRequest.birthdate
         )
         val response = AuthorResponse(
             id = author.id!!,
             name = author.name,
-            birthdate = author.birthdate,
-            nationality = author.nationality
+            birthdate = author.birthdate
         )
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse(status = "success", data = response))
@@ -69,15 +64,13 @@ class AuthorController(private val authorService: AuthorService) {
         val updatedAuthor = authorService.updateAuthor(
             id = id,
             name = updateAuthorRequest.name,
-            birthdate = updateAuthorRequest.birthdate,
-            nationality = updateAuthorRequest.nationality
+            birthdate = updateAuthorRequest.birthdate
         )
         return if (updatedAuthor != null) {
             val response = AuthorResponse(
                 id = updatedAuthor.id!!,
                 name = updatedAuthor.name,
-                birthdate = updatedAuthor.birthdate,
-                nationality = updatedAuthor.nationality
+                birthdate = updatedAuthor.birthdate
             )
             ResponseEntity.ok(ApiResponse(status = "success", data = response))
         } else {
@@ -102,14 +95,12 @@ class AuthorController(private val authorService: AuthorService) {
     fun searchAuthors(@RequestBody searchAuthorsRequest: SearchAuthorsRequest): ResponseEntity<ApiResponse<List<AuthorResponse>>> {
         val authors = authorService.searchAuthors(
             name = searchAuthorsRequest.name,
-            nationality = searchAuthorsRequest.nationality,
             birthdate = searchAuthorsRequest.birthdate
         ).map { author ->
             AuthorResponse(
                 id = author.id!!,
                 name = author.name,
-                birthdate = author.birthdate,
-                nationality = author.nationality
+                birthdate = author.birthdate
             )
         }
         val response = ApiResponse(

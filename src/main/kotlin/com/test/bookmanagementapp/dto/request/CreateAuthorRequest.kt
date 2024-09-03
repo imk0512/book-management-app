@@ -9,8 +9,5 @@ data class CreateAuthorRequest(
     val name: String,
 
     @field:NotNull(message = "Birthdate is required")
-    val birthdate: LocalDate,
-
-    @field:NotBlank(message = "Nationality is required")
-    val nationality: String
+    val birthdate: LocalDate
 )
