@@ -53,8 +53,7 @@ class AuthorService(
         // 著者に関連する本を全て論理削除
         bookRepository.markBooksAsDeletedByAuthorId(id)
 
-        val updatedAuthor = author.copy(deletedAt = LocalDateTime.now())
-        authorRepository.save(updatedAuthor)
+        authorRepository.deleteById(id)
     }
     fun searchAuthors(name: String?, birthdate: String?): List<Author> {
         val authors = authorRepository.findAll()
