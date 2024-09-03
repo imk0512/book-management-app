@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: book_mng_db
+    ports:
+      - "5002:5432"
+    environment:
+      POSTGRES_USER: book_mng
+      POSTGRES_PASSWORD: or3626
+      POSTGRES_DB: book_mng
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
