@@ -1,4 +1,4 @@
-package com.test.bookmanagementapp.dto.request
+package com.test.bookmanagementapp.dto.request.author
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull

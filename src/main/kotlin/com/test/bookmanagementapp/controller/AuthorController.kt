@@ -1,8 +1,10 @@
 package com.test.bookmanagementapp.controller
 
 import com.test.bookmanagementapp.dto.common.ApiResponse
-import com.test.bookmanagementapp.dto.request.*
-import com.test.bookmanagementapp.dto.response.*
+import com.test.bookmanagementapp.dto.request.author.CreateAuthorRequest
+import com.test.bookmanagementapp.dto.request.author.SearchAuthorsRequest
+import com.test.bookmanagementapp.dto.request.author.UpdateAuthorRequest
+import com.test.bookmanagementapp.dto.response.author.AuthorResponse
 import com.test.bookmanagementapp.service.AuthorService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

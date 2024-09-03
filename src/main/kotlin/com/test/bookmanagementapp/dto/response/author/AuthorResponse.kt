@@ -1,7 +1,6 @@
-package com.test.bookmanagementapp.dto.response
+package com.test.bookmanagementapp.dto.response.author
 
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class AuthorResponse(
     val id: Long,
