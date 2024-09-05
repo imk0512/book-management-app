@@ -21,7 +21,7 @@ jooq {
     edition.set(nu.studer.gradle.jooq.JooqEdition.OSS)
 
     configurations {
-        main {  // ここに記述します
+        main {
             generateSchemaSourceOnCompilation.set(true)
             generationTool {
                 logging = 'WARN'
@@ -56,6 +56,7 @@ flyway {
     password = 'or3626'
     schemas = ['public']
     locations = ['classpath:db/migration']
+    cleanDisabled = false
 }
 
 
@@ -82,7 +83,7 @@ dependencies {
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    jooqGenerator 'org.postgresql:postgresql:42.5.0'
+    jooqGenerator 'org.postgresql:postgresql:42.7.2'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 }

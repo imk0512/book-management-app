@@ -3,7 +3,9 @@ package com.test.bookmanagementapp.repository
 import com.test.jooq.tables.Authors.AUTHORS
 import com.test.bookmanagementapp.model.Author
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Repository
@@ -27,12 +29,28 @@ class AuthorRepository(private val dsl: DSLContext) {
                 .where(AUTHORS.ID.eq(id))
         ) > 0
     }
+    fun searchAuthors(name: String?, birthdate: LocalDate?): List<Author> {
 
-    fun findByNameContainingIgnoreCase(name: String): List<Author> {
-        return dsl.selectFrom(AUTHORS)
-            .where(AUTHORS.NAME.containsIgnoreCase(name))
-            .fetchInto(Author::class.java)
+        val trimmedName = name?.replace("[\\s　]+".toRegex(), "")
+
+        val query = dsl.selectFrom(AUTHORS)
+            .where(AUTHORS.DELETED_AT.isNull)
+
+        if (trimmedName != null) {
+            query.and(
+                DSL.condition("REGEXP_REPLACE({0}, '[\\s　]+', '', 'g') ILIKE {1}", AUTHORS.NAME, "%$trimmedName%")
+            )
+        }
+
+        if (birthdate != null) {
+            query.and(AUTHORS.BIRTHDATE.eq(birthdate))
+        }
+
+        return query.fetchInto(Author::class.java)
     }
+
+
+
 
     fun save(author: Author): Author {
         val currentTime = LocalDateTime.now()

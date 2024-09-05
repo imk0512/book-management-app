@@ -6,14 +6,18 @@ import com.test.bookmanagementapp.dto.request.author.SearchAuthorsRequest
 import com.test.bookmanagementapp.dto.request.author.UpdateAuthorRequest
 import com.test.bookmanagementapp.dto.response.author.AuthorResponse
 import com.test.bookmanagementapp.service.AuthorService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+@Tag(name = "Author API", description = "API for managing authors")
 @RestController
 @RequestMapping("/api/authors")
 class AuthorController(private val authorService: AuthorService) {
 
+    @Operation(summary = "Get all authors", description = "Retrieve a list of all authors")
     @GetMapping
     fun getAllAuthors(): ResponseEntity<ApiResponse<List<AuthorResponse>>> {
         val authors = authorService.getAllAuthors().map { author ->
@@ -85,8 +89,7 @@ class AuthorController(private val authorService: AuthorService) {
     fun deleteAuthor(@PathVariable id: Long): ResponseEntity<ApiResponse<Void>> {
         return try {
             authorService.deleteAuthorById(id)
-            ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse(status = "success"))
+            ResponseEntity.ok(ApiResponse(status = "success", data = null))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse(status = "error", message = "Failed to delete author"))

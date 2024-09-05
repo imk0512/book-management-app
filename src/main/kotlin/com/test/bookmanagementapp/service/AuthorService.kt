@@ -7,7 +7,6 @@ import com.test.bookmanagementapp.repository.BookRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Service
 @Transactional
@@ -55,11 +54,9 @@ class AuthorService(
 
         authorRepository.deleteById(id)
     }
-    fun searchAuthors(name: String?, birthdate: String?): List<Author> {
-        val authors = authorRepository.findAll()
-        return authors.filter { author ->
-            (name == null || author.name.contains(name, ignoreCase = true)) &&
-                    (birthdate == null || author.birthdate.toString() == birthdate)
-        }
+
+    fun searchAuthors(name: String?, birthdate: LocalDate?): List<Author> {
+        return authorRepository.searchAuthors(name, birthdate)
     }
 }
+

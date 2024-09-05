@@ -41,10 +41,8 @@ class BookService(
             throw IllegalArgumentException("Title must be less than 100 characters")
         }
 
-        val author = authorRepository.findById(authorId)
-        if (author == null) {
-            throw ResourceNotFoundException("Author with ID $authorId not found")
-        }
+        authorRepository.findById(authorId)
+            ?: throw ResourceNotFoundException("Author with ID $authorId not found")
 
         val book = Book(
             id = null,

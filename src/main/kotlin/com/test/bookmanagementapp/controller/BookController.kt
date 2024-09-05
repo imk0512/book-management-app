@@ -7,10 +7,13 @@ import com.test.bookmanagementapp.dto.request.book.UpdateBookRequest
 import com.test.bookmanagementapp.dto.response.book.BookResponse
 import com.test.bookmanagementapp.dto.response.book.BookWithAuthorResponse
 import com.test.bookmanagementapp.service.BookService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+@Tag(name = "Book API", description = "API for managing Book")
 @RestController
 @RequestMapping("/api/books")
 class BookController(private val bookService: BookService) {
@@ -50,14 +53,17 @@ class BookController(private val bookService: BookService) {
     }
 
     @GetMapping("/search")
-    fun getBooksByAuthorName(@RequestParam authorName: String): ResponseEntity<ApiResponse<List<BookWithAuthorResponse>>> {
+    fun getBooksByAuthorName(@RequestParam authorName: String): ResponseEntity<ApiResponse<List<BookWithAuthorResponse?>>> {
         val booksWithAuthors = bookService.getBooksByAuthorName(authorName).map { bookWithAuthor ->
-            BookWithAuthorResponse(
-                id = bookWithAuthor.id,
-                title = bookWithAuthor.title,
-                isbn = bookWithAuthor.isbn,
-                authorName = bookWithAuthor.authorName
-            )
+            bookWithAuthor.authorName?.let {
+                BookWithAuthorResponse(
+                    id = bookWithAuthor.id,
+                    title = bookWithAuthor.title,
+                    isbn = bookWithAuthor.isbn,
+                    authorId = bookWithAuthor.authorId,
+                    authorName = bookWithAuthor.authorName
+                )
+            }
         }
         val response = ApiResponse(
             status = "success",
