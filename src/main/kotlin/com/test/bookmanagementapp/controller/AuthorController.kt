@@ -5,6 +5,7 @@ import com.test.bookmanagementapp.dto.request.author.CreateAuthorRequest
 import com.test.bookmanagementapp.dto.request.author.SearchAuthorsRequest
 import com.test.bookmanagementapp.dto.request.author.UpdateAuthorRequest
 import com.test.bookmanagementapp.dto.response.author.AuthorResponse
+import com.test.bookmanagementapp.dto.response.author.SearchAuthorsResponse
 import com.test.bookmanagementapp.service.AuthorService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -97,21 +98,13 @@ class AuthorController(private val authorService: AuthorService) {
     }
 
     @PostMapping("/search")
-    fun searchAuthors(@RequestBody searchAuthorsRequest: SearchAuthorsRequest): ResponseEntity<ApiResponse<List<AuthorResponse>>> {
-        val authors = authorService.searchAuthors(
-            name = searchAuthorsRequest.name,
-            birthdate = searchAuthorsRequest.birthdate
-        ).map { author ->
-            AuthorResponse(
-                id = author.id!!,
-                name = author.name,
-                birthdate = author.birthdate
-            )
+    fun searchAuthors(@RequestBody searchAuthorsRequest: SearchAuthorsRequest): ResponseEntity<SearchAuthorsResponse> {
+        val authors = authorService.searchAuthors(searchAuthorsRequest.name, searchAuthorsRequest.birthdate)
+
+        return if (authors.isEmpty()) {
+            ResponseEntity.ok(SearchAuthorsResponse(authors = emptyList()))
+        } else {
+            ResponseEntity.ok(SearchAuthorsResponse(authors = authors.map { AuthorResponse(it.id!!, it.name, it.birthdate) }))
         }
-        val response = ApiResponse(
-            status = "success",
-            data = authors
-        )
-        return ResponseEntity.ok(response)
     }
 }
