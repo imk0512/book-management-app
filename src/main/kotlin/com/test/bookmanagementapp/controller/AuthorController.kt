@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/authors")
 class AuthorController(private val authorService: AuthorService) {
 
-    @Operation(summary = "Get all authors", description = "Retrieve a list of all authors")
+    @Operation(summary = "全ての著者を取得", description = "全ての著者をデータベースから取得します。削除された著者は含まれません。")
     @GetMapping
     fun getAllAuthors(): ResponseEntity<ApiResponse<List<AuthorResponse>>> {
         val authors = authorService.getAllAuthors().map { author ->
@@ -35,6 +35,7 @@ class AuthorController(private val authorService: AuthorService) {
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "著者をIDで取得", description = "指定されたIDの著者情報を取得します。著者が存在しない場合は404エラーを返します。")
     @GetMapping("/{id}")
     fun getAuthorById(@PathVariable id: Long): ResponseEntity<ApiResponse<AuthorResponse>> {
         val author = authorService.getAuthorById(id)
@@ -51,6 +52,7 @@ class AuthorController(private val authorService: AuthorService) {
         }
     }
 
+    @Operation(summary = "著者をIDで取得", description = "指定されたIDの著者情報を取得します。著者が存在しない場合は404エラーを返します。")
     @PostMapping
     fun createAuthor(@RequestBody createAuthorRequest: CreateAuthorRequest): ResponseEntity<ApiResponse<AuthorResponse>> {
         val author = authorService.createAuthor(
@@ -66,6 +68,7 @@ class AuthorController(private val authorService: AuthorService) {
             .body(ApiResponse(status = "success", data = response))
     }
 
+    @Operation(summary = "著者情報を更新", description = "指定されたIDの著者情報を更新します。存在しないIDの場合は404エラーを返します。")
     @PutMapping("/{id}")
     fun updateAuthor(@PathVariable id: Long, @RequestBody updateAuthorRequest: UpdateAuthorRequest): ResponseEntity<ApiResponse<AuthorResponse>> {
         val updatedAuthor = authorService.updateAuthor(
@@ -86,6 +89,7 @@ class AuthorController(private val authorService: AuthorService) {
         }
     }
 
+    @Operation(summary = "著者を削除", description = "指定されたIDの著者を論理削除します。関連する書籍も論理削除されます。")
     @DeleteMapping("/{id}")
     fun deleteAuthor(@PathVariable id: Long): ResponseEntity<ApiResponse<Void>> {
         return try {
@@ -97,6 +101,7 @@ class AuthorController(private val authorService: AuthorService) {
         }
     }
 
+    @Operation(summary = "著者を検索", description = "指定された名前や生年月日で著者を検索します。名前は部分一致で検索されます。削除された著者は含まれません。")
     @PostMapping("/search")
     fun searchAuthors(@RequestBody searchAuthorsRequest: SearchAuthorsRequest): ResponseEntity<SearchAuthorsResponse> {
         val authors = authorService.searchAuthors(searchAuthorsRequest.name, searchAuthorsRequest.birthdate)

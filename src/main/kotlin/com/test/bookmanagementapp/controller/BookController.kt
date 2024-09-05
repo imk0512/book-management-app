@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/books")
 class BookController(private val bookService: BookService) {
 
+    @Operation(summary = "全ての書籍を取得", description = "全ての書籍を取得します。削除された書籍は含まれません。")
     @GetMapping
     fun getAllBooks(): ResponseEntity<ApiResponse<List<BookResponse>>> {
         val books = bookService.getAllBooks().map { book ->
@@ -35,6 +36,7 @@ class BookController(private val bookService: BookService) {
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "IDで書籍を取得", description = "指定されたIDの書籍を取得します。")
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: Long): ResponseEntity<ApiResponse<BookResponse>> {
         val book = bookService.getBookById(id)
@@ -52,6 +54,7 @@ class BookController(private val bookService: BookService) {
         }
     }
 
+    @Operation(summary = "著者名で書籍を検索", description = "指定された著者名で部分一致検索を行い、関連する書籍を返します。")
     @GetMapping("/search")
     fun getBooksByAuthorName(@RequestParam authorName: String): ResponseEntity<ApiResponse<List<BookWithAuthorResponse?>>> {
         val booksWithAuthors = bookService.getBooksByAuthorName(authorName).map { bookWithAuthor ->
@@ -72,6 +75,7 @@ class BookController(private val bookService: BookService) {
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "著者IDで書籍を取得", description = "指定された著者IDに関連する書籍を取得します。")
     @GetMapping("/author/{authorId}")
     fun getBooksByAuthorId(@PathVariable authorId: Long): ResponseEntity<ApiResponse<List<BookResponse>>> {
         val books = bookService.getBooksByAuthorId(authorId).map { book ->
@@ -89,6 +93,7 @@ class BookController(private val bookService: BookService) {
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "複数の著者IDで書籍を取得", description = "指定された著者IDのリストに関連する書籍を取得します。")
     @PostMapping("/search-by-author-ids")
     fun getBooksByAuthorIds(@RequestBody authorIdsRequest: AuthorIdsRequest): ResponseEntity<ApiResponse<List<BookResponse>>> {
         val books = bookService.getBooksByAuthorIds(authorIdsRequest.authorIds).map { book ->
@@ -106,7 +111,7 @@ class BookController(private val bookService: BookService) {
         return ResponseEntity.ok(response)
     }
 
-
+    @Operation(summary = "新しい書籍を作成", description = "新しい書籍を登録します。")
     @PostMapping
     fun createBook(@RequestBody createBookRequest: CreateBookRequest): ResponseEntity<ApiResponse<BookResponse>> {
         val book = bookService.createBook(
@@ -124,6 +129,7 @@ class BookController(private val bookService: BookService) {
             .body(ApiResponse(status = "success", data = response))
     }
 
+    @Operation(summary = "書籍を更新", description = "既存の書籍の情報を更新します。")
     @PutMapping("/{id}")
     fun updateBook(@PathVariable id: Long, @RequestBody updateBookRequest: UpdateBookRequest): ResponseEntity<ApiResponse<BookResponse>> {
         val updatedBook = bookService.updateBook(
@@ -146,6 +152,7 @@ class BookController(private val bookService: BookService) {
         }
     }
 
+    @Operation(summary = "書籍を削除", description = "指定されたIDの書籍を削除します。削除後、削除済みの書籍は検索結果に表示されません。")
     @DeleteMapping("/{id}")
     fun deleteBook(@PathVariable id: Long): ResponseEntity<ApiResponse<Void>> {
         return try {
