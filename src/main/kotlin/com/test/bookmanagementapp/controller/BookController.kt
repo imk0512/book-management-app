@@ -6,6 +6,7 @@ import com.test.bookmanagementapp.dto.request.book.CreateBookRequest
 import com.test.bookmanagementapp.dto.request.book.UpdateBookRequest
 import com.test.bookmanagementapp.dto.response.book.BookResponse
 import com.test.bookmanagementapp.dto.response.book.BookWithAuthorResponse
+import com.test.bookmanagementapp.exception.ResourceNotFoundException
 import com.test.bookmanagementapp.service.BookService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -39,19 +40,14 @@ class BookController(private val bookService: BookService) {
     @Operation(summary = "IDで書籍を取得", description = "指定されたIDの書籍を取得します。")
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: Long): ResponseEntity<ApiResponse<BookResponse>> {
-        val book = bookService.getBookById(id)
-        return if (book != null) {
-            val response = BookResponse(
-                id = book.id!!,
-                title = book.title,
-                isbn = book.isbn,
-                authorId = book.authorId
-            )
-            ResponseEntity.ok(ApiResponse(status = "success", data = response))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse(status = "error", message = "Book not found"))
-        }
+        val book = bookService.getBookById(id)?: throw ResourceNotFoundException("Book with id $id not found")
+        val response = BookResponse(
+            id = book.id!!,
+            title = book.title,
+            isbn = book.isbn,
+            authorId = book.authorId
+        )
+        return ResponseEntity.ok(ApiResponse(status = "success", data = response))
     }
 
     @Operation(summary = "著者名で書籍を検索", description = "指定された著者名で部分一致検索を行い、関連する書籍を返します。")
@@ -138,30 +134,21 @@ class BookController(private val bookService: BookService) {
             isbn = updateBookRequest.isbn,
             authorId = updateBookRequest.authorId
         )
-        return if (updatedBook != null) {
-            val response = BookResponse(
-                id = updatedBook.id!!,
-                title = updatedBook.title,
-                isbn = updatedBook.isbn,
-                authorId = updatedBook.authorId
-            )
-            ResponseEntity.ok(ApiResponse(status = "success", data = response))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse(status = "error", message = "Book not found"))
-        }
+
+        val response = BookResponse(
+            id = updatedBook.id!!,
+            title = updatedBook.title,
+            isbn = updatedBook.isbn,
+            authorId = updatedBook.authorId
+        )
+        return ResponseEntity.ok(ApiResponse(status = "success", data = response))
+
     }
 
     @Operation(summary = "書籍を削除", description = "指定されたIDの書籍を削除します。削除後、削除済みの書籍は検索結果に表示されません。")
     @DeleteMapping("/{id}")
-    fun deleteBook(@PathVariable id: Long): ResponseEntity<ApiResponse<Void>> {
-        return try {
-            bookService.deleteBookById(id)
-            ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse(status = "success"))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse(status = "error", message = "Failed to delete book"))
-        }
+    fun deleteBook(@PathVariable id: Long): ResponseEntity<Void> {
+        bookService.deleteBookById(id)
+        return ResponseEntity.noContent().build()
     }
 }

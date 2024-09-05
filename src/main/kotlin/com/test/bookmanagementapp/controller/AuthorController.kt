@@ -6,6 +6,7 @@ import com.test.bookmanagementapp.dto.request.author.SearchAuthorsRequest
 import com.test.bookmanagementapp.dto.request.author.UpdateAuthorRequest
 import com.test.bookmanagementapp.dto.response.author.AuthorResponse
 import com.test.bookmanagementapp.dto.response.author.SearchAuthorsResponse
+import com.test.bookmanagementapp.exception.ResourceNotFoundException
 import com.test.bookmanagementapp.service.AuthorService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -38,18 +39,13 @@ class AuthorController(private val authorService: AuthorService) {
     @Operation(summary = "著者をIDで取得", description = "指定されたIDの著者情報を取得します。著者が存在しない場合は404エラーを返します。")
     @GetMapping("/{id}")
     fun getAuthorById(@PathVariable id: Long): ResponseEntity<ApiResponse<AuthorResponse>> {
-        val author = authorService.getAuthorById(id)
-        return if (author != null) {
-            val response = AuthorResponse(
-                id = author.id!!,
-                name = author.name,
-                birthdate = author.birthdate
-            )
-            ResponseEntity.ok(ApiResponse(status = "success", data = response))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse(status = "error", message = "Author not found"))
-        }
+        val author = authorService.getAuthorById(id)?: throw ResourceNotFoundException("Author with id $id not found")
+        val response = AuthorResponse(
+            id = author.id!!,
+            name = author.name,
+            birthdate = author.birthdate
+        )
+        return ResponseEntity.ok(ApiResponse(status = "success", data = response))
     }
 
     @Operation(summary = "著者をIDで取得", description = "指定されたIDの著者情報を取得します。著者が存在しない場合は404エラーを返します。")
@@ -76,29 +72,21 @@ class AuthorController(private val authorService: AuthorService) {
             name = updateAuthorRequest.name,
             birthdate = updateAuthorRequest.birthdate
         )
-        return if (updatedAuthor != null) {
-            val response = AuthorResponse(
-                id = updatedAuthor.id!!,
-                name = updatedAuthor.name,
-                birthdate = updatedAuthor.birthdate
-            )
-            ResponseEntity.ok(ApiResponse(status = "success", data = response))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse(status = "error", message = "Author not found"))
-        }
+
+        val response = AuthorResponse(
+            id = updatedAuthor.id!!,
+            name = updatedAuthor.name,
+            birthdate = updatedAuthor.birthdate
+        )
+        return ResponseEntity.ok(ApiResponse(status = "success", data = response))
+
     }
 
     @Operation(summary = "著者を削除", description = "指定されたIDの著者を論理削除します。関連する書籍も論理削除されます。")
     @DeleteMapping("/{id}")
-    fun deleteAuthor(@PathVariable id: Long): ResponseEntity<ApiResponse<Void>> {
-        return try {
-            authorService.deleteAuthorById(id)
-            ResponseEntity.ok(ApiResponse(status = "success", data = null))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse(status = "error", message = "Failed to delete author"))
-        }
+    fun deleteAuthor(@PathVariable id: Long): ResponseEntity<Void> {
+        authorService.deleteAuthorById(id)
+        return ResponseEntity.noContent().build()
     }
 
     @Operation(summary = "著者を検索", description = "指定された名前や生年月日で著者を検索します。名前は部分一致で検索されます。削除された著者は含まれません。")
