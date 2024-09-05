@@ -6,7 +6,5 @@ data class AuthorResponse(
     val id: Long,
     val name: String,
     val birthdate: LocalDate
-//    val createdAt: LocalDateTime,
-//    val updatedAt: LocalDateTime
 )
 
