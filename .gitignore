@@ -1,0 +1,30 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Compiled class files
+*.class
+
+# Logs
+*.log
+logs/
+
+# Gradle specific
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Spring Boot specific
+/target/
+/build/
+*.war
+*.jar
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+*.env
