@@ -4,6 +4,7 @@ import com.test.bookmanagementapp.exception.ResourceNotFoundException
 import com.test.bookmanagementapp.model.Author
 import com.test.bookmanagementapp.repository.AuthorRepository
 import com.test.bookmanagementapp.repository.BookRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -14,6 +15,7 @@ class AuthorService(
     private val authorRepository: AuthorRepository,
     private val bookRepository: BookRepository
 ) {
+    private val logger = LoggerFactory.getLogger(AuthorService::class.java)
 
     fun getAllAuthors(): List<Author> {
         return authorRepository.findAll()
@@ -71,14 +73,23 @@ class AuthorService(
     }
 
 
+    @Transactional(rollbackFor = [Exception::class])
     fun deleteAuthorById(id: Long) {
-        val author = authorRepository.findById(id)
+        authorRepository.findById(id)
             ?: throw ResourceNotFoundException("Author with id $id not found")
 
-        // 著者に関連する本を全て論理削除
-        bookRepository.markBooksAsDeletedByAuthorId(id)
+        try {
+            // 著者に関連する本を全て論理削除
+            bookRepository.markBooksAsDeletedByAuthorId(id)
 
-        authorRepository.deleteById(id)
+            // 著者の論理削除
+            authorRepository.deleteById(id)
+
+            logger.info("Author with ID $id and their books have been successfully deleted.")
+        } catch (e: Exception) {
+            logger.error("Failed to delete author with ID $id: ${e.message}", e)
+            throw e
+        }
     }
 
     fun searchAuthors(name: String, birthdate: LocalDate?): List<Author> {
