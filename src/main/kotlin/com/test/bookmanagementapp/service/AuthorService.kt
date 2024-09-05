@@ -81,7 +81,7 @@ class AuthorService(
         authorRepository.deleteById(id)
     }
 
-    fun searchAuthors(name: String?, birthdate: LocalDate?): List<Author> {
+    fun searchAuthors(name: String, birthdate: LocalDate?): List<Author> {
         return authorRepository.searchAuthors(name, birthdate)
     }
 }

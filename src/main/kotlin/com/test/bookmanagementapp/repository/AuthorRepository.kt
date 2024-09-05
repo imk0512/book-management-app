@@ -4,12 +4,16 @@ import com.test.jooq.tables.Authors.AUTHORS
 import com.test.bookmanagementapp.model.Author
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+
 @Repository
 class AuthorRepository(private val dsl: DSLContext) {
+
+    private val logger = LoggerFactory.getLogger(BookRepository::class.java)
 
     fun findAll(): List<Author> {
         return dsl.selectFrom(AUTHORS)
@@ -22,16 +26,20 @@ class AuthorRepository(private val dsl: DSLContext) {
             .fetchOneInto(Author::class.java)
     }
 
-
     fun existsById(id: Long): Boolean {
         return dsl.fetchCount(
             dsl.selectFrom(AUTHORS)
                 .where(AUTHORS.ID.eq(id))
         ) > 0
     }
-    fun searchAuthors(name: String?, birthdate: LocalDate?): List<Author> {
 
-        val trimmedName = name?.replace("[\\s　]+".toRegex(), "")
+    fun searchAuthors(name: String, birthdate: LocalDate?): List<Author> {
+
+        val trimmedName = name.replace("[\\s　]+".toRegex(), "")
+        if (trimmedName.isEmpty()) {
+            logger.warn("Author name is empty after trimming. Returning empty result.")
+            return emptyList()
+        }
 
         val query = dsl.selectFrom(AUTHORS)
             .where(AUTHORS.DELETED_AT.isNull)
@@ -48,9 +56,6 @@ class AuthorRepository(private val dsl: DSLContext) {
 
         return query.fetchInto(Author::class.java)
     }
-
-
-
 
     fun save(author: Author): Author {
         val currentTime = LocalDateTime.now()
