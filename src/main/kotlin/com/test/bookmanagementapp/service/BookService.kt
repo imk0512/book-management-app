@@ -44,6 +44,10 @@ class BookService(
         authorRepository.findById(authorId)
             ?: throw ResourceNotFoundException("Author with ID $authorId not found")
 
+        if (bookRepository.existsByIsbn(isbn)) {
+            throw IllegalArgumentException("ISBN $isbn already exists. Please use a unique ISBN.")
+        }
+
         val book = Book(
             id = null,
             title = title,
@@ -52,6 +56,7 @@ class BookService(
         )
         return bookRepository.save(book)
     }
+
 
 
     fun updateBook(id: Long, title: String?, isbn: String?, authorId: Long?): Book? {

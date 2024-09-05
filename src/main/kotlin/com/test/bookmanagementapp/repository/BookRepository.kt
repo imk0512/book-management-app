@@ -28,6 +28,14 @@ class BookRepository(private val dsl: DSLContext) {
             .fetchOneInto(Book::class.java)
     }
 
+    fun existsByIsbn(isbn: String): Boolean {
+        return dsl.fetchCount(
+            dsl.selectFrom(BOOKS)
+                .where(BOOKS.ISBN.eq(isbn))
+                .and(BOOKS.DELETED_AT.isNull)
+        ) > 0
+    }
+
     fun findBooksByAuthorId(authorId: Long): List<Book> {
         return dsl.selectFrom(BOOKS)
             .where(BOOKS.AUTHOR_ID.eq(authorId))
@@ -53,6 +61,10 @@ class BookRepository(private val dsl: DSLContext) {
     fun findBooksByAuthorName(authorName: String): List<BookWithAuthor> {
 
         val trimmedName = authorName.replace("[\\s　]+".toRegex(), "")
+        if (trimmedName.isEmpty()) {
+            logger.warn("Author name is empty after trimming. Returning empty result.")
+            return emptyList()
+        }
         logger.info("Searching books for trimmed author name: $trimmedName")
 
         val result = dsl.select(
@@ -74,8 +86,6 @@ class BookRepository(private val dsl: DSLContext) {
 
         return result
     }
-
-
 
     fun save(book: Book): Book {
         return if (book.id == null) {
