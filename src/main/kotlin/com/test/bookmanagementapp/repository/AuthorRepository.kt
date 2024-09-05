@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 @Repository
 class AuthorRepository(private val dsl: DSLContext) {
 
-    private val logger = LoggerFactory.getLogger(BookRepository::class.java)
+    private val logger = LoggerFactory.getLogger(AuthorRepository::class.java)
 
     fun findAll(): List<Author> {
         return dsl.selectFrom(AUTHORS)
@@ -44,11 +44,9 @@ class AuthorRepository(private val dsl: DSLContext) {
         val query = dsl.selectFrom(AUTHORS)
             .where(AUTHORS.DELETED_AT.isNull)
 
-        if (trimmedName != null) {
-            query.and(
-                DSL.condition("REGEXP_REPLACE({0}, '[\\s　]+', '', 'g') ILIKE {1}", AUTHORS.NAME, "%$trimmedName%")
-            )
-        }
+        query.and(
+            DSL.condition("REGEXP_REPLACE({0}, '[\\s　]+', '', 'g') ILIKE {1}", AUTHORS.NAME, "%$trimmedName%")
+        )
 
         if (birthdate != null) {
             query.and(AUTHORS.BIRTHDATE.eq(birthdate))

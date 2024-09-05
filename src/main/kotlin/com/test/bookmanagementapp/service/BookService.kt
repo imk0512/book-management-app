@@ -59,7 +59,7 @@ class BookService(
 
 
 
-    fun updateBook(id: Long, title: String?, isbn: String?, authorId: Long?): Book? {
+    fun updateBook(id: Long, title: String?, isbn: String?, authorId: Long?): Book {
         if (title != null) {
             val trimmedTitle = title.trim()
             if (trimmedTitle.isEmpty()) {
@@ -73,25 +73,22 @@ class BookService(
             throw IllegalArgumentException("ISBN must be exactly 13 characters")
         }
 
-        val existingBook = bookRepository.findById(id)
-        return if (existingBook != null) {
-            if (authorId != null && !authorRepository.existsById(authorId)) {
-                throw ResourceNotFoundException("Author with id $authorId not found")
-            }
+        val existingBook = bookRepository.findById(id)?:throw ResourceNotFoundException("Book with id $id not found")
 
-            val updatedBook = existingBook.copy(
-                title = title ?: existingBook.title,
-                isbn = isbn ?: existingBook.isbn,
-                authorId = authorId ?: existingBook.authorId
-            )
-            bookRepository.save(updatedBook)
-        } else {
-            throw ResourceNotFoundException("Book with id $id not found")
+        if (authorId != null && !authorRepository.existsById(authorId)) {
+            throw ResourceNotFoundException("Author with id $authorId not found")
         }
+
+        val updatedBook = existingBook.copy(
+            title = title ?: existingBook.title,
+            isbn = isbn ?: existingBook.isbn,
+            authorId = authorId ?: existingBook.authorId
+        )
+        return bookRepository.save(updatedBook)
     }
 
-
     fun deleteBookById(id: Long) {
+        bookRepository.findById(id) ?: throw ResourceNotFoundException("Book with id $id not found")
         bookRepository.deleteById(id)
     }
 }
