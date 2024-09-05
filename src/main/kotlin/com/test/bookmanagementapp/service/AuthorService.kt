@@ -24,26 +24,52 @@ class AuthorService(
     }
 
     fun createAuthor(name: String, birthdate: LocalDate): Author {
+
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
+            throw IllegalArgumentException("Name cannot be empty or whitespace only")
+        }
+        if (trimmedName.length > 255) {
+            throw IllegalArgumentException("Name must be 255 characters or less")
+        }
+
+        if (birthdate.isAfter(LocalDate.now())) {
+            throw IllegalArgumentException("Birthdate cannot be in the future")
+        }
+
         val author = Author(
             id = null,
-            name = name,
+            name = trimmedName,
             birthdate = birthdate
         )
         return authorRepository.save(author)
     }
 
-    fun updateAuthor(id: Long, name: String?, birthdate: LocalDate?): Author? {
+    fun updateAuthor(id: Long, name: String?, birthdate: LocalDate?): Author {
         val existingAuthor = authorRepository.findById(id)
-        return if (existingAuthor != null) {
-            val updatedAuthor = existingAuthor.copy(
-                name = name ?: existingAuthor.name,
-                birthdate = birthdate ?: existingAuthor.birthdate
-            )
-            authorRepository.save(updatedAuthor)
-        } else {
-            null
+            ?: throw ResourceNotFoundException("Author with id $id not found")
+
+        if (name != null) {
+            val trimmedName = name.trim()
+            if (trimmedName.isEmpty()) {
+                throw IllegalArgumentException("Name cannot be empty or whitespace only")
+            }
+            if (trimmedName.length > 255) {
+                throw IllegalArgumentException("Name must be 255 characters or less")
+            }
         }
+
+        if (birthdate != null && birthdate.isAfter(LocalDate.now())) {
+            throw IllegalArgumentException("Birthdate cannot be in the future")
+        }
+
+        val updatedAuthor = existingAuthor.copy(
+            name = name ?: existingAuthor.name,
+            birthdate = birthdate ?: existingAuthor.birthdate
+        )
+        return authorRepository.save(updatedAuthor)
     }
+
 
     fun deleteAuthorById(id: Long) {
         val author = authorRepository.findById(id)

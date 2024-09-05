@@ -70,7 +70,6 @@ class BookService(
 
         val existingBook = bookRepository.findById(id)
         return if (existingBook != null) {
-            // 著者の存在チェックを追加
             if (authorId != null && !authorRepository.existsById(authorId)) {
                 throw ResourceNotFoundException("Author with id $authorId not found")
             }
